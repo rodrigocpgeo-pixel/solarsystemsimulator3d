@@ -461,7 +461,7 @@
                 btnNorthView: "Vista Norte",
                 btnNorthViewTitle: "Centrar y visualizar desde el polo norte celeste",
                 btnAbout: "ℹ️ Info",
-                btnAboutTitle: "Sobre el Proyecto",
+                btnAboutTitle: "Sobre el Projeto",
                 aboutTitle: "Sobre el Projeto",
                 aboutText: "Este es un proyecto de construcción de un simulador y enciclopedia con información sobre el Sistema Solar. La herramienta de construcción principal é la ingeniería de prompts con inteligencia artificial generativa. Para sugerencias, envíe sugerencias a:",
                 contactLabel: "Contacto:",
@@ -911,9 +911,9 @@
                 const minClearanceFactor = parent.data.hasRing ? 2.4 : 1.15;
                 const absoluteMinRadius = parentRadius * minClearanceFactor;
 
-                // SOLUÇÃO 2 IMPLEMENTADA: Evita que a excentricidade real extrema expanda as órbitas visuais das luas e invada outras regiões planetárias
-                const eccentricityFactor = useProportionalDistance ? (data.e || 0) : Math.min(0.2, data.e || 0);
-                const minOrbitSemimajor = absoluteMinRadius / (1 - eccentricityFactor);
+                // SOLUÇÃO REVISADA: Excentricidade efetiva para cálculo consistente do semieixo maior
+                const effectiveE = useProportionalDistance ? (data.e || 0) : Math.min(0.2, data.e || 0);
+                const minOrbitSemimajor = absoluteMinRadius / (1 - effectiveE);
                 const calculatedOrbitRadius = parentRadius + (gapFactor * SCALE_FACTOR * visualMoonOrbitScale);
                 const orbitRadius = Math.max(minOrbitSemimajor, calculatedOrbitRadius);
 
@@ -921,7 +921,8 @@
                 const segments = 256; 
                 for (let j = 0; j <= segments; j++) {
                     const theta = (j / segments) * 2 * Math.PI;
-                    const pos = getOrbitPosition(theta, orbitRadius, data.e || 0, data.i || 0, data.Omega || 0, data.omega || 0);
+                    // ALTERADO: Usa a excentricidade efetiva também no desenho elíptico da linha
+                    const pos = getOrbitPosition(theta, orbitRadius, effectiveE, data.i || 0, data.Omega || 0, data.omega || 0);
                     points.push(pos);
                 }
                 const geometry = new THREE.BufferGeometry().setFromPoints(points);
@@ -1107,10 +1108,13 @@
                 }
                 obj.mesh.visible = true;
 
+                // SOLUÇÃO REVISADA: Determina a excentricidade efetiva para os cálculos e frames orbitais da lua
+                const effectiveE = useProportionalDistance ? (data.e || 0) : Math.min(0.2, data.e || 0);
+
                 if (isAnimationRunning) {
-                    const e = data.e || 0;
                     const cos_v = Math.cos(data.angle);
-                    const speedAdjustFactor = Math.pow(1 + e * cos_v, 2) / Math.pow(1 - e * e, 1.5);
+                    // ALTERADO: Usa a excentricidade efetiva na velocidade angular kepleriana
+                    const speedAdjustFactor = Math.pow(1 + effectiveE * cos_v, 2) / Math.pow(1 - effectiveE * effectiveE, 1.5);
 
                     data.angle += data.speed * speedMultiplier * 0.1 * speedAdjustFactor;
                 }
@@ -1123,9 +1127,8 @@
                 const minClearanceFactor = parent.data.hasRing ? 2.4 : 1.15;
                 const absoluteMinRadius = parentRadius * minClearanceFactor;
 
-                // SOLUÇÃO 2 IMPLEMENTADA: Evita que a excentricidade real extrema expanda as órbitas visuais das luas e invada outras regiões planetárias
-                const eccentricityFactor = useProportionalDistance ? (data.e || 0) : Math.min(0.2, data.e || 0);
-                const minOrbitSemimajor = absoluteMinRadius / (1 - eccentricityFactor);
+                // ALTERADO: Calcula o semieixo maior usando a excentricidade efetiva
+                const minOrbitSemimajor = absoluteMinRadius / (1 - effectiveE);
                 const calculatedOrbitRadius = parentRadius + (gapFactor * SCALE_FACTOR * visualMoonOrbitScale);
                 const orbitRadius = Math.max(minOrbitSemimajor, calculatedOrbitRadius);
                 
@@ -1135,7 +1138,8 @@
                 const py = parent.group.position.y;
                 const pz = parent.group.position.z;
                 
-                const relativePos = getOrbitPosition(data.angle, orbitRadius, data.e || 0, data.i || 0, data.Omega || 0, data.omega || 0);
+                // ALTERADO: Usa effectiveE na equação de posicionamento kepleriano 3D real
+                const relativePos = getOrbitPosition(data.angle, orbitRadius, effectiveE, data.i || 0, data.Omega || 0, data.omega || 0);
 
                 const mx = px + relativePos.x;
                 const my = py + relativePos.y;
