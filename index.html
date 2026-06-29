@@ -462,8 +462,8 @@
                 btnNorthViewTitle: "Centrar y visualizar desde el polo norte celeste",
                 btnAbout: "ℹ️ Info",
                 btnAboutTitle: "Sobre el Proyecto",
-                aboutTitle: "Sobre el Proyecto",
-                aboutText: "Este es un proyecto de construcción de un simulador y enciclopedia con información sobre el Sistema Solar. La herramienta de construcción principal es la ingeniería de prompts con inteligencia artificial generativa. Para sugerencias, envíe sugerencias a:",
+                aboutTitle: "Sobre el Projeto",
+                aboutText: "Este es un proyecto de construcción de un simulador y enciclopedia con información sobre el Sistema Solar. La herramienta de construcción principal é la ingeniería de prompts con inteligencia artificial generativa. Para sugerencias, envíe sugerencias a:",
                 contactLabel: "Contacto:",
                 showOrbits: " Órbitas",
                 showLabels: " Nombres",
@@ -472,7 +472,7 @@
                 showAxes: " Eje de Rotación",
                 highlight: " Destacar",
                 realisticSpeed: " Velocidad Realista",
-                realisticDiameter: " Diámetro Realista",
+                realisticDiameter: " Diâmetro Realista",
                 realisticDistance: " Distancia Realista",
                 realisticSun: " Diámetro Realista del Sol",
                 speedLabel: "Velocidad:",
@@ -911,7 +911,9 @@
                 const minClearanceFactor = parent.data.hasRing ? 2.4 : 1.15;
                 const absoluteMinRadius = parentRadius * minClearanceFactor;
 
-                const minOrbitSemimajor = absoluteMinRadius / (1 - (data.e || 0));
+                // SOLUÇÃO 2 IMPLEMENTADA: Evita que a excentricidade real extrema expanda as órbitas visuais das luas e invada outras regiões planetárias
+                const eccentricityFactor = useProportionalDistance ? (data.e || 0) : Math.min(0.2, data.e || 0);
+                const minOrbitSemimajor = absoluteMinRadius / (1 - eccentricityFactor);
                 const calculatedOrbitRadius = parentRadius + (gapFactor * SCALE_FACTOR * visualMoonOrbitScale);
                 const orbitRadius = Math.max(minOrbitSemimajor, calculatedOrbitRadius);
 
@@ -1121,7 +1123,9 @@
                 const minClearanceFactor = parent.data.hasRing ? 2.4 : 1.15;
                 const absoluteMinRadius = parentRadius * minClearanceFactor;
 
-                const minOrbitSemimajor = absoluteMinRadius / (1 - (data.e || 0));
+                // SOLUÇÃO 2 IMPLEMENTADA: Evita que a excentricidade real extrema expanda as órbitas visuais das luas e invada outras regiões planetárias
+                const eccentricityFactor = useProportionalDistance ? (data.e || 0) : Math.min(0.2, data.e || 0);
+                const minOrbitSemimajor = absoluteMinRadius / (1 - eccentricityFactor);
                 const calculatedOrbitRadius = parentRadius + (gapFactor * SCALE_FACTOR * visualMoonOrbitScale);
                 const orbitRadius = Math.max(minOrbitSemimajor, calculatedOrbitRadius);
                 
